@@ -14,7 +14,7 @@ Here's what my app can do:
 - Render Markdown files as HTML for easy viewing
 - Delete unwanted files
 - Copy shareable URLs for each file
-- View files as raw HTML
+- View files as HTML
 - Responsive design for both desktop and mobile devices
 
 ## Requirements
@@ -49,7 +49,7 @@ I've implemented some basic security measures:
 - Directory traversal prevention
 - Restriction on allowed file extensions
 
-But remember, this is a quick and dirty solution. It may not be suitable for handling sensitive information or use in high-security environments. Use at your own discretion and implement additional security measures as needed.
+But **remember**, this is a quick and dirty solution. It may not be suitable for handling sensitive information or use in high-security environments. Use at your own discretion and implement additional security measures as needed.
 
 ## Customisation
 
