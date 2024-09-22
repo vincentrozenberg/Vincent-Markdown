@@ -2,7 +2,7 @@
 session_start();
 
 // Password protection
-$password = 'geheim'; // Replace with your desired password
+$password = 'secret'; // Replace with your desired password
 $is_authenticated = isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true;
 
 // Logout mechanism
