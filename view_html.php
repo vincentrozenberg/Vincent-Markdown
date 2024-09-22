@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 $directory = __DIR__ . '/files';
 $file = isset($_GET['file']) ? basename($_GET['file']) : null;
 
@@ -9,7 +12,7 @@ if (!$file || !is_file($directory . '/' . $file) || pathinfo($file, PATHINFO_EXT
 $filePath = $directory . '/' . $file;
 $content = file_get_contents($filePath);
 
-function parseMarkdown($text) {
+function parseMarkdown($text, $baseUrl, $directory) {
     // Normalize line breaks
     $text = str_replace(["\r\n", "\r"], "\n", $text);
     
@@ -59,11 +62,36 @@ function parseMarkdown($text) {
 
     $text = implode("\n", $parsed);
 
+    // Image parsing (do this before link parsing)
+    $text = preg_replace_callback('/!\[([^\]]*)\]\(([^\)]+)\)/', function($matches) use ($baseUrl, $directory) {
+        $alt = $matches[1];
+        $src = $matches[2];
+        $isExternal = preg_match('/^https?:\/\//', $src);
+
+        if ($isExternal) {
+            $fullSrc = $src;
+            $debug = "<!-- Debug: External image source: $fullSrc -->\n";
+        } else {
+            $fullSrc = $baseUrl . '/' . $src;
+            $localPath = $directory . '/' . $src;
+            $fileExists = file_exists($localPath);
+            $debug = "<!-- Debug: Local image source: $fullSrc, File exists: " . ($fileExists ? 'Yes' : 'No') . " -->\n";
+            
+            if (!$fileExists) {
+                return $debug . "<img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=\" alt=\"$alt\" title=\"Image not found: $fullSrc\" style=\"border: 1px solid red;\">";
+            }
+        }
+
+        return $debug . "<img src=\"$fullSrc\" alt=\"$alt\">";
+    }, $text);
+
     // Inline formatting
     $text = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $text);
     $text = preg_replace('/\*(.+?)\*/', '<em>$1</em>', $text);
     $text = preg_replace('/`(.+?)`/', '<code>$1</code>', $text);
-    $text = preg_replace('/\[(.+?)\]\((.+?)\)/', '<a href="$2">$1</a>', $text);
+
+    // Link parsing (do this after image parsing)
+    $text = preg_replace('/\[([^\]]+)\]\(([^\)]+)\)/', '<a href="$2">$1</a>', $text);
 
     // Remove empty paragraphs
     $text = preg_replace('/<p>\s*<\/p>/', '', $text);
@@ -71,9 +99,10 @@ function parseMarkdown($text) {
     return $text;
 }
 
-$parsedContent = parseMarkdown($content);
-
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+$baseUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']);
+$parsedContent = parseMarkdown($content, $baseUrl, $directory);
+
 $directUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 ?>
@@ -87,6 +116,12 @@ $directUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .rendered-markdown img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header class="py-2 sticky-header">
