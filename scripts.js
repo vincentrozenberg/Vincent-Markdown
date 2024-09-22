@@ -9,6 +9,24 @@ document.addEventListener('DOMContentLoaded', function() {
         },
     });
 
+    // New function to load file content into the editor
+    function loadFileContent(filename) {
+        const timestamp = new Date().getTime();
+        fetch(`files/${encodeURIComponent(filename)}?t=${timestamp}`)
+            .then(response => response.text())
+            .then(content => {
+                easyMDE.value(content);
+                document.getElementById('filename').value = filename.replace(/^\d{8}-/, '').replace(/\.md$/, '');
+            });
+    }
+
+    // Check for 'edit' parameter in URL and load file content if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const editFile = urlParams.get('edit');
+    if (editFile) {
+        loadFileContent(editFile);
+    }
+
     document.querySelectorAll('.copy-url').forEach(button => {
         button.addEventListener('click', function(e) {
             e.stopPropagation();
