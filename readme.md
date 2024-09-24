@@ -2,6 +2,8 @@
 
 This is a quick and dirty PHP-based web application for managing and viewing Markdown files. I designed it as a straightforward solution for personal use or small-scale deployments, prioritising simplicity over advanced features.
 
+![Vincent Markdown Preview](https://raw.githubusercontent.com/vincentrozenberg/Vincent-Markdown/refs/heads/main/vmd-preview.png)
+
 ## Disclaimer
 
 I want to be clear: this application is a basic, no-frills solution. I didn't design it for large-scale or high-security environments. Use it at your own risk and consider implementing additional security measures for sensitive deployments.
