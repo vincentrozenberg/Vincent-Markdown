@@ -29,9 +29,10 @@ To run this, you'll need:
 ## Installation
 
 1. Clone this repository to your web server's document root or a subdirectory.
-2. Make sure the `files` directory is writable by your web server.
-3. Configure your web server to serve PHP files.
-4. Access the application through your web browser.
+2. Set your pasword in the index.php file.
+3. Make sure the `files` directory is writable by your web server.
+4. Configure your web server to serve PHP files.
+5. Access the application through your web browser.
 
 ## Usage
 
